@@ -14,6 +14,12 @@ calling, agent loop, and how to integrate multiple tools into an AI assistant.
 **Note**: If you're viewing this repo on GitHub, head over to
 [codecrafters.io](https://codecrafters.io) to try the challenge.
 
+# Project overview
+
+- Implements a minimal Claude Code-style agent with an OpenAI-compatible API.
+- Supports tool calls and a simple `Read` tool to fetch file contents.
+- Runs an agent loop that keeps calling the model until a final response is produced.
+
 # Passing the first stage
 
 The entry point for your `claude-code` implementation is in `app/main.py`. Study
