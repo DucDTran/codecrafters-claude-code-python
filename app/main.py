@@ -59,6 +59,23 @@ def main():
                     }
                 }
             }
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "Bash",
+                "description": "Execute a shell command",
+                "parameters": {
+                    "type": "object",
+                    "required": ["command"],
+                    "properties": {
+                        "command": {
+                            "type": "string",
+                            "description": "The command to execute"
+                        }
+                    }
+                }
+            }
         }
     ]
 
@@ -94,7 +111,7 @@ def main():
             messages.append(assistant_message)
 
             for tool_call in tool_calls:
-                if tool_call.function.name != "Read" and tool_call.function.name != "Write":
+                if tool_call.function.name != "Read" and tool_call.function.name != "Write" and tool_call.function.name != "Bash":
                     continue
                 elif tool_call.function.name == "Read":
                     try:
@@ -135,6 +152,26 @@ def main():
                             "role": "tool",
                             "tool_call_id": tool_call.id,
                             "content": f"Wrote to {file_path}",
+                        }
+                    )
+                elif tool_call.function.name == "Bash":
+                    try:
+                        arguments = json.loads(tool_call.function.arguments)
+                    except json.JSONDecodeError as exc:
+                        raise RuntimeError("invalid tool arguments") from exc
+
+                    command = arguments.get("command")
+                    if not command:
+                        raise RuntimeError("missing command in tool arguments")
+
+                    stream = os.popen(command)
+                    output = stream.read()
+
+                    messages.append(
+                        {
+                            "role": "tool",
+                            "tool_call_id": tool_call.id,
+                            "content": output,
                         }
                     )
             continue
