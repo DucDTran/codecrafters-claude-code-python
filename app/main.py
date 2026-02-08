@@ -47,7 +47,7 @@ def main():
     
     print("Logs from your program will appear here!", file=sys.stderr)
     
-    print(chat.choices[0].message.tool_calls[0].function.arguments['file_path'], file=sys.stderr)
+    print(chat.choices[0].message.tool_calls[0].function.arguments, file=sys.stderr)
     
     if "tool_calls" in chat.choices[0].message:
         for tool_call in chat.choices[0].message.tool_calls:
