@@ -66,7 +66,8 @@ def main():
                 file_contents = f.read()
             print(file_contents)
             break
-
+    
+    print(chat.choices[0].message.content)
 
 if __name__ == "__main__":
     main()
