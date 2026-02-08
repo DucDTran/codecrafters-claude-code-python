@@ -46,9 +46,8 @@ def main():
         raise RuntimeError("no choices in response")
     
     print("Logs from your program will appear here!", file=sys.stderr)
-
-    print(chat.choices[0].message)
-    print(chat.choices[0].message.content, file=sys.stderr)
+    
+    print(chat.choices[0].message.tool_calls, file=sys.stderr)
     
     if "tool_calls" in chat.choices[0].message:
         for tool_call in chat.choices[0].message.tool_calls:
