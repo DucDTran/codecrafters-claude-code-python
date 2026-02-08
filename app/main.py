@@ -47,13 +47,12 @@ def main():
     
     print("Logs from your program will appear here!", file=sys.stderr)
 
-    print(chat.choices[0].message.content)
+    print(chat.choices[0].message)
+    print(chat.choices[0].message.content, file=sys.stderr)
     
     if "tool_calls" in chat.choices[0].message:
         for tool_call in chat.choices[0].message.tool_calls:
-            print(tool_call)
             if tool_call.function.name == "Read":
-                print(tool_call.function.arguments)
                 file_path = tool_call.function.arguments["file_path"]
                 with open(file_path, "r") as f:
                     file_contents = f.read()
