@@ -51,11 +51,13 @@ def main():
     
     if "tool_calls" in chat.choices[0].message:
         for tool_call in chat.choices[0].message.tool_calls:
+            print(tool_call)
             if tool_call.function.name == "Read":
+                print(tool_call.function.arguments)
                 file_path = tool_call.function.arguments["file_path"]
                 with open(file_path, "r") as f:
                     file_contents = f.read()
-                print(f"\nContents of {file_path}:\n{file_contents}")
+                print(file_contents)
 
 
 if __name__ == "__main__":
