@@ -1,5 +1,6 @@
 import argparse
 import json
+from json import tool
 import os
 import sys
 
@@ -37,6 +38,27 @@ def main():
                     "required": ["file_path"],
                 },
             },
+        },
+        {
+            "type": "function",
+            "function": {
+                "name": "Write",
+                "description": "Write content to a file",
+                "parameters": {
+                    "type": "object",
+                    "required": ["file_path", "content"],
+                    "properties": {
+                        "file_path": {
+                            "type": "string",
+                            "description": "The path of the file to write to"
+                        },
+                        "content": {
+                            "type": "string",
+                            "description": "The content to write to the file"
+                        }
+                    }
+                }
+            }
         }
     ]
 
@@ -72,27 +94,49 @@ def main():
             messages.append(assistant_message)
 
             for tool_call in tool_calls:
-                if tool_call.function.name != "Read":
+                if tool_call.function.name != "Read" and tool_call.function.name != "Write":
                     continue
-                try:
-                    arguments = json.loads(tool_call.function.arguments)
-                except json.JSONDecodeError as exc:
-                    raise RuntimeError("invalid tool arguments") from exc
+                elif tool_call.function.name == "Read":
+                    try:
+                        arguments = json.loads(tool_call.function.arguments)
+                    except json.JSONDecodeError as exc:
+                        raise RuntimeError("invalid tool arguments") from exc
 
-                file_path = arguments.get("file_path")
-                if not file_path:
-                    raise RuntimeError("missing file_path in tool arguments")
+                    file_path = arguments.get("file_path")
+                    if not file_path:
+                        raise RuntimeError("missing file_path in tool arguments")
 
-                with open(file_path, "r") as f:
-                    file_contents = f.read()
+                    with open(file_path, "r") as f:
+                        file_contents = f.read()
 
-                messages.append(
-                    {
-                        "role": "tool",
-                        "tool_call_id": tool_call.id,
-                        "content": file_contents,
-                    }
-                )
+                    messages.append(
+                        {
+                            "role": "tool",
+                            "tool_call_id": tool_call.id,
+                            "content": file_contents,
+                        }
+                    )
+                elif tool_call.function.name == "Write":
+                    try:
+                        arguments = json.loads(tool_call.function.arguments)
+                    except json.JSONDecodeError as exc:
+                        raise RuntimeError("invalid tool arguments") from exc
+
+                    file_path = arguments.get("file_path")
+                    content = arguments.get("content")
+                    if not file_path or content is None:
+                        raise RuntimeError("missing file_path or content in tool arguments")
+
+                    with open(file_path, "w") as f:
+                        f.write(content)
+
+                    messages.append(
+                        {
+                            "role": "tool",
+                            "tool_call_id": tool_call.id,
+                            "content": f"Wrote to {file_path}",
+                        }
+                    )
             continue
 
         messages.append(assistant_message)
